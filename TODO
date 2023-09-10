@@ -1,0 +1,38 @@
+DEPLOYMENT STEPS:
+
+CREATING A POSTGRES DATABASE ON AWS:
+
+DOCKERIZING THE FRONTEND APP:
+- Create a Dockerfile and add configurations
+- Build the image using command > docker build -t qdubs/eha-membership-frontend
+- Push the image to Docker Hub using command > docker push qdubs/eha-membership-frontend
+
+DEPLOYING THE BACKEND API IMAGE ON KUBERNETES:
+- Check if Minikube is running > minikube status
+- If it is not running, use > minikube start
+- To view the Minikube dashboard > minikube dashboard
+- To pause Minikube > minikube pause
+- To unpause Minikube > minikube unpause
+- To stop Minikube > minikube stop
+- Run commands > kubectl get deployments, kubectl get pods, kubectl get services, to ensure a clear cluster
+- Run > kubectl apply -f=kubernetes/frontend-deployment.yaml, to create a deployment
+- Run > kubectl apply -f=kubernetes/frontend-service.yaml, to create a service
+- Run > kubectl apply -f=kubernetes/frontend-environment.yaml, to create a configMap
+- Then expose the service using > minikube service membership-frontend-service 
+
+CREATING A CONCOURSE CI PIPELINE:
+- Link: https://medium.com/concourse-ci/getting-started-with-concourse-ci-on-macos-fb3a49a8e6b4
+- Create a folder called concourse-ci and cd into that folder
+- Run the following two commands one after the other > $ curl -O https://concourse-ci.org/docker-compose.yml and $ docker-compose up -d 
+- Next install concourse fly
+- Visit: http://127.0.0.1:8080/ ad click on the Apple icon
+- Next, run commands: $ install fly /usr/local/bin, $ which fly and $ fly -v
+- Next is login. Use command > fly -t membership-frontend login -c http://localhost:8080 -u test -p test
+- Then go back to http://127.0.0.1:8080/, and login using the username and password set in the previous command
+
+- Create a file for the concourse pipeline: membership-frontend-pipeline.yaml
+- Add pipeline configurations
+- Run command > fly -t membership-frontend set-pipeline -p membership-frontend-pipeline -c membership-frontend-pipeline.yaml, to upload the pipeline to Concourse
+- The command produces an output with a link: http://localhost:8080/teams/main/pipelines/membership-frontend-pipeline
+- The link is used to view the Concourse pipeline
+- Next, to trigger the pipeline, run command > fly -t membership-frontend trigger-job --job membership-frontend-pipeline/hello-world-job --watch
